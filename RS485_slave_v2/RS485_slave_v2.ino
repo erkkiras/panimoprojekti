@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <Controllino.h> /* Usage of CONTROLLINO library allows you to use CONTROLLINO_xx aliases in your sketch. */
+#include <ArduinoJson.h>
 
 void setup() {
  /* Here we initialize USB serial at 9600 baudrate for reporting */
@@ -35,18 +36,21 @@ String read_rs(){
     int br1 = payload.indexOf('{');
     int br2 = payload.indexOf('}');
     slave = payload.charAt(br1+1) - 48;
-    payload_ = payload.substring(br1+1,br2);
+    payload_ = "{" + payload.substring(br1+1,br2) + "}";
+    //Serial.println(payload_);
     Serial3.flush();
     read = true;
   }
-  if(slave == slaveid) return payload_;
-  if(slave != slaveid) return "xxx";
+  //if(slave == slaveid) return payload_;
+  //if(slave != slaveid) return "xxx";
+  return(payload_);
 
 }
 
 
 void loop() {
 
+/*
 delay(1000);
 
 String msg = "{" + read_rs() + "}";
@@ -56,5 +60,36 @@ Serial.println(msg);
 delay(1000);
 
 if(slave == slaveid) write_rs("{message received}");
+*/
+
+delay(1000);
+
+StaticJsonDocument<200> doc;
+String msg = read_rs();
+int msg_len = msg.length() + 1; 
+
+char json[msg_len];
+
+msg.toCharArray(json,msg_len);
+
+Serial.println(json);
+
+DeserializationError error = deserializeJson(doc, json);
+if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+int id = doc["id"];
+float sp = doc["sp"];
+
+Serial.print(id);
+Serial.print(", ");
+Serial.println(sp);
+
+
+
+
 
 }

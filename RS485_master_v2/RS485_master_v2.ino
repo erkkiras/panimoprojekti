@@ -34,21 +34,19 @@ String read_rs(){
     payload = Serial3.readStringUntil('}');
     int br1 = payload.indexOf('{');
     int br2 = payload.indexOf('}');
-    payload_ = payload.substring(br1+1,br2);
+    payload_ = payload.substring(br1,br2+1);
     Serial3.flush();
     read = true;
   }
-
   return payload_;
-
 }
 
 
 void loop() {
-write_rs("{2 hello}");
+write_rs("{\"id\":2,\"sp\":60}");
 delay(1000);
 
-String msg = "{" + read_rs() + "}";
+String msg = read_rs();
 
 Serial.println(msg);
 
